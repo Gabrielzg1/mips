@@ -3,12 +3,10 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
 entity unified_memory_tb is
-    -- Testbench não tem portas
 end unified_memory_tb;
 
 architecture behavior of unified_memory_tb is
 
-    -- Componente a ser testado
     component unified_memory
         Port ( 
             clk : in std_logic;
@@ -20,7 +18,6 @@ architecture behavior of unified_memory_tb is
         );
     end component;
 
-    -- Sinais para simulação
     signal clk: std_logic := '0';
     signal mem_address: std_logic_vector(31 downto 0) := (others => '0');
     signal mem_write_data: std_logic_vector(31 downto 0) := (others => '0');
@@ -28,7 +25,6 @@ architecture behavior of unified_memory_tb is
     signal mem_write: std_logic := '0';
     signal mem_read: std_logic := '0';
 
-    -- Instância do componente de memória
     begin
         uut: unified_memory 
             port map (
@@ -45,13 +41,12 @@ architecture behavior of unified_memory_tb is
         begin
             while true loop
                 clk <= '0';
-                wait for 10 ns; -- Ajuste o período do clock conforme necessário
+                wait for 10 ns; 
                 clk <= '1';
                 wait for 10 ns;
             end loop;
         end process;
 
-        -- Processo de teste
         test_process: process
         begin
             -- Teste de escrita
@@ -74,7 +69,6 @@ architecture behavior of unified_memory_tb is
 
             mem_read <= '0'; -- Desabilita leitura
 
-            -- Encerra simulação
             wait;
         end process;
 
