@@ -1,0 +1,33 @@
+# Arquivos e diretórios gerados pelo Quartus
+output_files/
+db/
+incremental_db/
+*.qpf
+*.qsf
+*.qws
+*.bak
+*.rpt
+*.summary
+*.smsg
+*.jdi
+
+# Arquivos específicos de simulação e síntese
+simulation/
+synthesis/
+
+# Arquivos temporários que podem ser gerados
+*.tmp
+*.temp
+*.old
+*.orig
+
+# Arquivos de log
+*.log
+
+# Arquivos específicos de dispositivos e programação
+*.sof
+*.pof
+
+# Arquivos de backup criados por editores de texto
+*~
+*.bak
