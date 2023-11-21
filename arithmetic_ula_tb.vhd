@@ -1,67 +1,57 @@
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-USE ieee.std_logic_arith.ALL;
-USE ieee.std_logic_unsigned.ALL;
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
 
-ENTITY arithmetic_ula_tb IS
-END arithmetic_ula_tb;
+entity arithmetic_ula_tb is
+    -- Testbench não tem entradas ou saídas
+end arithmetic_ula_tb;
 
-ARCHITECTURE behavior OF arithmetic_ula_tb IS 
-
-    -- Component Declaration for the Unit Under Test (UUT)
-    COMPONENT arithmetic_ula
-    PORT(
-         in_1 : IN  std_logic_vector(31 downto 0);
-         in_2 : IN  std_logic_vector(31 downto 0);
-         alu_control_fuct : IN  std_logic_vector(3 downto 0);
-         zero : OUT  std_logic;
-         alu_result : OUT  std_logic_vector(31 downto 0)
+architecture behavior of arithmetic_ula_tb is 
+    -- Componente sob teste
+    component arithmetic_ula
+        port (
+            input_a, input_b: std_logic_vector(31 downto 0);
+            operation_code: in std_logic_vector(3 downto 0);
+            flag_zero: out std_logic;
+            result: out std_logic_vector(31 downto 0)
         );
-    END COMPONENT;
-   
-    --Inputs
-    signal in_1 : std_logic_vector(31 downto 0) := (others => '0');
-    signal in_2 : std_logic_vector(31 downto 0) := (others => '0');
-    signal alu_control_fuct : std_logic_vector(3 downto 0) := (others => '0');
+    end component;
 
-    --Outputs
-    signal zero : std_logic;
-    signal alu_result : std_logic_vector(31 downto 0);
+    -- Sinais para interagir com o UUT
+    signal input_a, input_b: std_logic_vector(31 downto 0);
+    signal operation_code: std_logic_vector(3 downto 0);
+    signal flag_zero: std_logic;
+    signal result: std_logic_vector(31 downto 0);
 
-BEGIN 
+begin
+    -- Instanciar a UUT
+    uut: arithmetic_ula port map (
+        input_a => input_a,
+        input_b => input_b,
+        operation_code => operation_code,
+        flag_zero => flag_zero,
+        result => result
+    );
 
-    -- Instantiate the Unit Under Test (UUT)
-   uut: arithmetic_ula PORT MAP (
-          in_1 => in_1,
-          in_2 => in_2,
-          alu_control_fuct => alu_control_fuct,
-          zero => zero,
-          alu_result => alu_result
-        );
+    -- Processo de teste
+    test_process: process
+    begin
+        -- Teste para adição
+        input_a <= "00000000000000000000000000000010"; -- 2
+        input_b <= "00000000000000000000000000000011"; -- 3
+        operation_code <= "0010"; -- Código para adição
+        wait for 10 ns;
 
-    -- Testbench statements here
-    -- Example:
-    -- Test case 1
-    test1: PROCESS
-    BEGIN
-        -- Initialize Inputs
-        in_1 <= (others => '0');
-        in_2 <= (others => '0');
-        alu_control_fuct <= "0011"; -- Example: Add operation
+        -- Teste para subtração
+        input_a <= "00000000000000000000000000000001"; -- 1
+        input_b <= "00000000000000000000000000000111"; -- 1
+        operation_code <= "0011"; -- Código para subtração
+        wait for 10 ns;
 
-        -- Wait for 100 ns for global reset to finish
-        WAIT FOR 10 ns;
-        
-        -- Add stimulus here
-        in_1 <= "00000000000000000000000000000011"; -- Example input
-        in_2 <= "00000000000000000000000000000001"; -- Example input
+        -- Testes adicionais podem ser adicionados aqui
 
-        -- Wait for result
-        WAIT FOR 10 ns;
-      
-       
-
-        WAIT; -- will wait forever
-    END PROCESS test1;
-
-END;
+        -- Finalizar o teste
+        wait;
+    end process test_process;
+end behavior;

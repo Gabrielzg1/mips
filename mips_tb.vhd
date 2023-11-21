@@ -10,24 +10,24 @@ architecture behavior of mips_tb is
     -- Componente a ser testado
     component mips
         port(
-            ck: in std_logic;
+            clk: in std_logic;
             example_counter: out integer
         );
     end component;
 
-    signal ck: std_logic := '0';
+    signal clk: std_logic := '0';
     signal example_counter: integer;
 
     -- Instância do componente MIPS
     begin
-        uut: mips port map (ck => ck, example_counter => example_counter);
+        uut: mips port map (clk => clk, example_counter => example_counter);
 
         -- Processo para gerar o clock
-        ck_process: process
+        clk_process: process
         begin
-            ck <= '0';
+            clk <= '0';
             wait for 10 ns; -- Ajuste o período do clock conforme necessário
-            ck <= '1';
+            clk <= '1';
             wait for 10 ns;
         end process;
 end behavior;

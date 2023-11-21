@@ -1,12 +1,12 @@
 ------------------------------------------------------
--- Componente ALU
+-- Arithmetic Logic Unit (ALU) Component
 --
--- Este componente recebe duas entradas, e executa uma das 5
--- operações, entre elas (somar, subtrair, E, OU, 
--- menor que, e retorna o resultado
+-- This component takes two inputs and performs one of 5
+-- operations, including (add, subtract, AND, OR, 
+-- less than), and returns the result.
 --
--- Retorna uma flag zero, que é verdadeira se as duas entradas
--- são iguais, e falso de outra forma
+-- Returns a zero flag, which is true if both inputs
+-- are equal, and false otherwise.
 ------------------------------------------------------
 
 library IEEE;
@@ -16,32 +16,32 @@ use ieee.std_logic_unsigned.all;
 
 entity arithmetic_ula is 
 	port (
-		in_1, in_2: std_logic_vector(31 downto 0);
-		alu_control_fuct: in std_logic_vector(3 downto 0);
-		zero: out std_logic;
-		alu_result: out std_logic_vector(31 downto 0)
+		input_a, input_b: std_logic_vector(31 downto 0);
+		operation_code: in std_logic_vector(3 downto 0);
+		flag_zero: out std_logic;
+		result: out std_logic_vector(31 downto 0)
 	);
 end arithmetic_ula;
 
-architecture beh of arithmetic_ula is
-	signal and_op: std_logic_vector(3 downto 0):= "0000";
-	signal or_op: std_logic_vector(3 downto 0):= "0001";
-	signal add: std_logic_vector(3 downto 0):= "0010";
-	signal subtract_not_equal: std_logic_vector(3 downto 0):= "0011";
-	signal subtract: std_logic_vector(3 downto 0):= "0110";
-	signal set_on_less_than: std_logic_vector(3 downto 0):= "0111";
+architecture behavior of arithmetic_ula is
+	signal and_operation: std_logic_vector(3 downto 0) := "0000";
+	signal or_operation: std_logic_vector(3 downto 0) := "0001";
+	signal add_op: std_logic_vector(3 downto 0) := "0010";
+	signal sub_neq: std_logic_vector(3 downto 0) := "0011";
+	signal sub_op: std_logic_vector(3 downto 0) := "0110";
+	signal less_than_set: std_logic_vector(3 downto 0) := "0111";
 
 	begin
 
-	alu_result <=	in_1 + in_2 when(alu_control_fuct=add) else
-					in_1 - in_2 when(alu_control_fuct=subtract or alu_control_fuct=subtract_not_equal) else
-					in_1 and in_2 when(alu_control_fuct=and_op) else
-					in_1 or in_2 when(alu_control_fuct=or_op) else
-					"00000000000000000000000000000001" when(alu_control_fuct=set_on_less_than and in_1 < in_2) else
-					"00000000000000000000000000000000" when(alu_control_fuct=set_on_less_than);
+	result <=	input_a + input_b when(operation_code=add_op) else
+				input_a - input_b when(operation_code=sub_op or operation_code=sub_neq) else
+				input_a and input_b when(operation_code=and_operation) else
+				input_a or input_b when(operation_code=or_operation) else
+				"00000000000000000000000000000001" when(operation_code=less_than_set and input_a < input_b) else
+				"00000000000000000000000000000000" when(operation_code=less_than_set);
 
-	zero <=	'1' when ((in_1 = in_2) and alu_control_fuct=subtract_not_equal) else 
-			'0' when(in_1=in_2 and alu_control_fuct=subtract_not_equal) 
-			else '0';
+	flag_zero <=	'1' when ((input_a = input_b) and operation_code=sub_neq) else 
+					'0' when(input_a=input_b and operation_code=sub_neq) 
+					else '0';
 
-end beh;
+end behavior;
