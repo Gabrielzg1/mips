@@ -37,7 +37,7 @@ architecture beh of mips is
 	
 	component instruction_memory
 	Port (
-        address : in std_logic_vector(7 downto 0); -- Endereço de 8 bits
+        address : in std_logic_vector(31 downto 0); -- Endereço de 32 bits
         instruction : out std_logic_vector(31 downto 0) -- Instrução de 32 bits
     );
 	 end component;

@@ -5,13 +5,13 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity instruction_memory is
     Port (
-        address : in std_logic_vector(7 downto 0); -- Endereço de 8 bits
+        address : in std_logic_vector(31 downto 0); -- Endereço de 8 bits
         instruction : out std_logic_vector(31 downto 0) -- Instrução de 32 bits
     );
 end instruction_memory;
 
 architecture Behavioral of instruction_memory is
-
+	
     type memory_array is array (0 to 255) of std_logic_vector(31 downto 0);
 	 -- Inserir o progama do fibonnaci aqui: 
     signal memory : memory_array := (

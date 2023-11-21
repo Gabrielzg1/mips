@@ -14,13 +14,13 @@ architecture Behavioral of instruction_memory_tb is
     -- Componente que será testado
     component instruction_memory
         Port (
-            address : in std_logic_vector(7 downto 0);
+            address : in std_logic_vector(31 downto 0);
             instruction : out std_logic_vector(31 downto 0)
         );
     end component;
 
     -- Sinais para simulação
-    signal tb_address : std_logic_vector(7 downto 0);
+    signal tb_address : std_logic_vector(31 downto 0);
     signal tb_instruction : std_logic_vector(31 downto 0);
 
 begin
@@ -35,9 +35,9 @@ begin
     process
     begin
         -- Teste com diferentes endereços
-        tb_address <= "00000000"; -- Exemplo de endereço
+        tb_address <= "00000000000000000000000000000000"; -- Exemplo de endereço
         wait for 10 ns;
-        tb_address <= "00000001";
+        tb_address <= "00000000000000000000000000000001";
         wait for 10 ns;
         -- Adicione mais casos de teste conforme necessário
 
