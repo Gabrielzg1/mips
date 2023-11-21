@@ -15,7 +15,7 @@ architecture beh of mips is
 	signal instr_address: std_logic_vector(31 downto 0); -- Endereço da instrução
 	signal next_address: std_logic_vector(31 downto 0); -- Proximo endereço de PC
 	signal instruction: std_logic_vector(31 downto 0); -- Instrução atual
-	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, last_instr_address, incremented_address, add2_result, mux4_result, concatenated_pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000"; -- vhdl does not allow me to port map " y => incremented_address(31 downto 28) & shifted_jump_address "
+	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, incremented_address, add2_result, mux4_result, concatenated_pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
 	signal shifted_jump_address: std_logic_vector(27 downto 0);
 	signal jump_address: std_logic_vector(25 downto 0);
 	signal immediate: std_logic_vector(15 downto 0);

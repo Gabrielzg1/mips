@@ -27,34 +27,16 @@ end control;
 architecture behavior of control is
 begin
     -- Assigning control signals based on opcode
-    --               R-types          addi        beq        bne        jump        lw          sw
-    reg_dest <=    '1' when opcode = "000000" else
-                   '0';
 
-    jump <=        '1' when opcode = "000010" else
-                   '0';
-
-    branch <=      '1' when opcode = "000100" or opcode = "000101" else
-                   '0';
-
-    mem_read <=    '1' when opcode = "100011" else
-                   '0';
-
-    mem_to_reg <=  '1' when opcode = "100011" else
-                   '0';
-
-    mem_write <=   '1' when opcode = "101011" else
-                   '0';
-
-    alu_src <=     '1' when opcode = "001000" or opcode = "100011" or opcode = "101011" else
-                   '0';
-
-    reg_write <=   '1' when opcode = "000000" or opcode = "001000" or opcode = "100011" else
-                   '0';
-
-    alu_op <=      "10" when opcode = "000000" else  -- R-type
-                   "00" when opcode = "001000" or opcode = "100011" or opcode = "101011" else  -- addi, lw, sw
-                   "01" when opcode = "000100" else  -- beq
-                   "11" when opcode = "000101" else  -- bne
-                   "00";  -- default case
+    --				           R-types				        addi				           beq                            bne                            jump                           lw                               sw
+	reg_dest <= 	'1' when opcode="000000"  else '0' when opcode="001000"  else '0' when opcode="000100"  else '0' when opcode="000101"  else '0' when opcode="000010"  else '0' when opcode="100011"  else '0' when opcode="101011"  else '0';
+	jump <=			'0' when opcode="000000"  else '0' when opcode="001000"  else '0' when opcode="000100"  else '0' when opcode="000101"  else '1' when opcode="000010"  else '0' when opcode="100011"  else '0' when opcode="101011"  else '0';
+	branch <=		'0' when opcode="000000"  else '0' when opcode="001000"  else '1' when opcode="000100"  else '1' when opcode="000101"  else '0' when opcode="000010"  else '0' when opcode="100011"  else '0' when opcode="101011"  else '0';
+	mem_read <=		'0' when opcode="000000"  else '0' when opcode="001000"  else '0' when opcode="000100"  else '0' when opcode="000101"  else '0' when opcode="000010"  else '1' when opcode="100011"  else '0' when opcode="101011"  else '0';
+	mem_to_reg <= 	'0' when opcode="000000"  else '0' when opcode="001000"  else '0' when opcode="000100"  else '0' when opcode="000101"  else '0' when opcode="000010"  else '1' when opcode="100011"  else '0' when opcode="101011"  else '0';
+	mem_write <= 	'0' when opcode="000000"  else '0' when opcode="001000"  else '0' when opcode="000100"  else '0' when opcode="000101"  else '0' when opcode="000010"  else '0' when opcode="100011"  else '1' when opcode="101011"  else '0';
+	alu_src <= 		'0' when opcode="000000"  else '1' when opcode="001000"  else '0' when opcode="000100"  else '0' when opcode="000101"  else '0' when opcode="000010"  else '1' when opcode="100011"  else '1' when opcode="101011"  else '0';
+	reg_write <= 	'1' when opcode="000000"  else '1' when opcode="001000"  else '0' when opcode="000100"  else '0' when opcode="000101"  else '0' when opcode="000010"  else '1' when opcode="100011"  else '0' when opcode="101011"  else '0';
+	alu_op <= 		"10" when opcode="000000" else "00" when opcode="001000" else "01" when opcode="000100" else "11" when opcode="000101" else "00" when opcode="000010" else "00" when opcode="100011"  else "00" when opcode="101011"  else "00";
+	
 end behavior;
