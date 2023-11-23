@@ -51,6 +51,15 @@ architecture behavior of control_tb is
 
         opcode <= "000100"; -- beq
         wait for 10 ns;
+		  
+		  opcode <= "000010"; -- jump
+        wait for 10 ns;
+		  
+		  opcode <= "100011"; -- lw
+        wait for 10 ns;
+		  
+		  opcode <= "101011"; -- sw
+        wait for 10 ns;
 
         -- Add tests for other opcodes...
         -- ...
