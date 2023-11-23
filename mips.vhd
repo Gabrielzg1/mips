@@ -300,10 +300,6 @@ begin
 		data_out => mem_read_data
 	);
 	
-	
-	
-	
-
     process(clk)
     begin
         if rising_edge(clk) then
