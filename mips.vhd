@@ -24,8 +24,10 @@ architecture beh of mips is
 	signal alu_control_fuct: std_logic_vector(3 downto 0);
 	signal alu_op: std_logic_vector(1 downto 0);
 	
-	-- saidas do CONTROL
+	-- saidas do CONTROL + sinal do branch	
 	signal reg_dest, jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero, branch_and_alu_zero: std_logic:= '0';
+	
+	
 	
 	-- Instanciando todos os componentens
 	component PC
@@ -97,6 +99,7 @@ architecture beh of mips is
 	-- Ula para somar 4 em pc, entra o valor atual e sai somado 
 	component pc_increment_ula
 	 Port (
+	     clk : in std_logic;
         pc_input : in std_logic_vector(31 downto 0);
         pc_output : out std_logic_vector(31 downto 0)
     );
@@ -175,6 +178,7 @@ begin
 	);
 	
 	pc_adder: pc_increment_ula port map (
+		  clk => clk,
 		  pc_input => instr_address,
         pc_output => incremented_address
 		
@@ -219,7 +223,7 @@ begin
 	
 	);
 	
-	SIGN_EXTEND: sign_extender port map (
+	sign_extend: sign_extender port map (
 		input_16bit  => immediate, -- Entrada de 16 bits
 		output_32bit => extended_immediate -- Saída de 32 bits
 	
@@ -269,6 +273,23 @@ begin
 	);
 	
 	concatenated_pc_and_jump_address <= incremented_address(31 downto 28) & shifted_jump_address; 
+	
+	mux_saida_address_adder: mux2_to_1 port map (
+		input0 => incremented_address, -- caso 0
+      input1 => address_adder_result, -- caso 1
+      op => branch_and_alu_zero,
+      output => mux4_result
+		  
+	);
+	
+	mux_jump_or_branch :  mux2_to_1 port map (
+		input0 => concatenated_pc_and_jump_address, -- caso 0
+      input1 => mux4_result, -- caso 1
+      op => jump,
+      output => next_address
+		  
+	);
+	
 
 	DM : data_memory port map (
 		clk => clk,

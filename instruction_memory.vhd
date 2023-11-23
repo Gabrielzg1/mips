@@ -15,8 +15,8 @@ architecture Behavioral of instruction_memory is
     type memory_array is array (0 to 255) of std_logic_vector(31 downto 0);
 	 -- Inserir o progama do fibonnaci aqui: 
     signal memory : memory_array := (
-        0 => "00000000000001110000000000000000",  
-        1 => "00000000000000001111100000000000", 
+        0 => "00100000010000010000000000000101",  
+        1 => "00100000010000010000000000000101", 
         -- Restante ...
 		  
         others => (others => '0') 
