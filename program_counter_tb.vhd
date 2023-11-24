@@ -1,68 +1,55 @@
 library IEEE;
-use IEEE.std_logic_1164.all;
-use IEEE.numeric_std.all;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.numeric_std.ALL;
 
 entity program_counter_tb is
-    -- Testbench não tem portas
+-- O testbench não possui portas.
 end program_counter_tb;
 
-architecture behavior of program_counter_tb is
-
+architecture behavior of program_counter_tb is 
     -- Componente a ser testado
-    component pc
+    component PC
         Port (
-            clk : in std_logic;
-            reset : in std_logic;
-            pc_in : in std_logic_vector(31 downto 0);
-            pc_write : in std_logic;
-            pc_out : out std_logic_vector(31 downto 0)
+            clk : in STD_LOGIC;
+            pc_in : in STD_LOGIC_VECTOR (31 downto 0);
+            pc_out : out STD_LOGIC_VECTOR (31 downto 0)
         );
     end component;
 
-    signal clk: std_logic := '0';
-    signal reset: std_logic := '0';
-    signal pc_in: std_logic_vector(31 downto 0) := (others => '0');
-    signal pc_write: std_logic := '0';
-    signal pc_out: std_logic_vector(31 downto 0);
+    -- Sinais para simulação
+    signal clk : STD_LOGIC := '0';
+    signal pc_in : STD_LOGIC_VECTOR (31 downto 0);
+    signal pc_out : STD_LOGIC_VECTOR (31 downto 0);
 
+    -- Instância do componente PC
     begin
-        uut: PC
-            port map (
-                clk => clk,
-                reset => reset,
-                pc_in => pc_in,
-                pc_write => pc_write,
-                pc_out => pc_out
-            );
+        uut: PC port map (clk => clk, pc_in => pc_in, pc_out => pc_out);
 
-        clk_process: process
+        -- Processo para gerar o clock
+        clk_process : process
         begin
             while true loop
                 clk <= '0';
-                wait for 10 ns;
+                wait for 10 ns; -- Ajuste este tempo conforme necessário para a frequência do seu clock
                 clk <= '1';
                 wait for 10 ns;
             end loop;
         end process;
 
-        test_process: process
-        begin
-            reset <= '1';
+        -- Processo de Teste
+        stim_proc: process
+        begin		
+            -- Teste com diferentes valores de entrada
+            pc_in <= (others => '0'); -- Testando com o valor inicial 0
             wait for 20 ns;
-            reset <= '0';
+            pc_in <= "00000000000000000000000000000001"; -- Testando com o valor 1
             wait for 20 ns;
-
-            pc_in <= std_logic_vector(to_unsigned(8, 32));
-            pc_write <= '1';
+            pc_in <= "00000000000000000000000000000010"; -- Testando com o valor 2
             wait for 20 ns;
-
-            pc_write <= '0';
-            wait for 20 ns;
-
-            pc_in <= std_logic_vector(unsigned(pc_out) + to_unsigned(4, 32));
-            pc_write <= '1';
+            pc_in <= "00000000000000000000000000000011"; -- Testando com o valor 3
             wait for 20 ns;
 
+            -- Finalize a simulação
             wait;
         end process;
 end behavior;

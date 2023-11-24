@@ -1,29 +1,34 @@
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL; 
-
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 entity instruction_memory is
-    Port (
-        address : in std_logic_vector(7 downto 0); -- Endereço de 8 bits
-        instruction : out std_logic_vector(31 downto 0) -- Instrução de 32 bits
+    port (
+        clk: in STD_LOGIC; -- Adicionando o sinal de clock
+        address: in STD_LOGIC_VECTOR (31 downto 0);
+        instruction: out STD_LOGIC_VECTOR (31 downto 0)
     );
 end instruction_memory;
 
-architecture Behavioral of instruction_memory is
+architecture behavioral of instruction_memory is
 
-    type memory_array is array (0 to 255) of std_logic_vector(31 downto 0);
-	 -- Inserir o progama do fibonnaci aqui: 
-    signal memory : memory_array := (
-        0 => "00000000000001110000000000000000", -- EXemplo  
-        1 => "00000000000000001111100000000000", 
-        -- Restante
-        others => (others => '0') -- Restante com zeros
+    -- 128 byte instruction memory (32 rows * 4 bytes/row)
+    type mem_array is array(0 to 31) of STD_LOGIC_VECTOR (31 downto 0);
+    signal data_mem: mem_array := (
+        "00100000011000010000000000110101", -- Instrução 0
+        "00100000010000010000000000000101", -- Instrução 1
+        -- ... mais instruções ...
+        others => "00000000000000000000000000000000" 
     );
+
 begin
-    -- Processo para ler a instrução da memória
-    process(address)
+    -- Processo sincronizado com a borda de subida do clock
+    process(clk)
     begin
-        instruction <= memory(to_integer(unsigned(address)));
+        if rising_edge(clk) then
+            -- Mapeia o endereço de leitura para a instrução correspondente
+            instruction <= data_mem(to_integer(unsigned(address(31 downto 2))));
+        end if;
     end process;
-end Behavioral;
+    
+end behavioral;
