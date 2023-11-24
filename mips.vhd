@@ -39,13 +39,15 @@ architecture beh of mips is
     );
     
 	end component;
+	
+	
 	component control
-    port (
-        opcode: in std_logic_vector(5 downto 0);
-        reg_dest, jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write: out std_logic;
-        alu_op: out std_logic_vector(1 downto 0)
-    );
-end component;
+        port(
+            opcode: in std_logic_vector(5 downto 0);
+            reg_dest, jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write: out std_logic;
+            alu_op: out std_logic_vector(1 downto 0)
+        );
+    end component;
 
 	
 	component instruction_memory
@@ -54,112 +56,17 @@ end component;
         instruction : out std_logic_vector(31 downto 0) -- Instrução de 32 bits
     );
 	 end component;
-	 
-	 component data_memory
-	 Port (
-		  clk       : in  std_logic; -- Sinal de clock adicionado
-        address   : in  std_logic_vector(31 downto 0); -- Endereço de 32 bits
-        write_data: in  std_logic_vector(31 downto 0); -- Dados para escrita de 32 bits
-        mem_read  : in  std_logic; -- Sinal de controle para leitura
-        mem_write : in  std_logic; -- Sinal de controle para escrita
-        data_out  : out std_logic_vector(31 downto 0) -- Dados lidos de 32 bits
-    );
-	 end component;
-	 
-	 component registers
-	  Port (
-        clk : in std_logic;
-        reg_write : in std_logic; -- Sinal para controlar a escrita no registrador
-        read_reg1 : in std_logic_vector(4 downto 0); -- Número do primeiro registrador para leitura
-        read_reg2 : in std_logic_vector(4 downto 0); -- Número do segundo registrador para leitura
-        write_reg : in std_logic_vector(4 downto 0); -- Número do registrador para escrita (rt ou rd) vem um mux antes
-        write_data : in std_logic_vector(31 downto 0); -- Dados a serem escritos
-        read_data1 : out std_logic_vector(31 downto 0); -- Dados do primeiro registrador lido
-        read_data2 : out std_logic_vector(31 downto 0) -- Dados do segundo registrador lido
-    );
-	 end component;
-	 
-	 component sign_extender
-	 Port (
-        input_16bit  : in  std_logic_vector(15 downto 0); -- Entrada de 16 bits
-        output_32bit : out std_logic_vector(31 downto 0)  -- Saída de 32 bits
-    );
-	 end component;
-	 
-	 
-	 -- 3 Ulas diferentes --> cada uma tem uma funcao 
-	 
-	 -- Ula para as operacoes em geral (principal)
-	 component arithmetic_ula 
-	 port (
-		input_a, input_b: std_logic_vector(31 downto 0);
-		operation_code: in std_logic_vector(3 downto 0);
-		flag_zero: out std_logic;
-		result: out std_logic_vector(31 downto 0)
-	);
-	end component;
 	
+
+	 	
 	-- Ula para somar 4 em pc, entra o valor atual e sai somado 
 	component pc_increment_ula
 	 Port (
-	     clk : in std_logic;
         pc_input : in std_logic_vector(31 downto 0);
         pc_output : out std_logic_vector(31 downto 0)
     );
 	 end component;
-	 
-	 -- Ula para somar o endereco extendido e ajustado em pc
-	 component address_calc_ula
-	 Port (
-        input1 : in std_logic_vector(31 downto 0);
-        input2 : in std_logic_vector(31 downto 0);
-        result : out std_logic_vector(31 downto 0)
-    );
-	 end component;
-	 
-	 component mux2_to_1
-	 Port (
-        input0 : in  std_logic_vector(31 downto 0); -- Entrada 0
-        input1 : in  std_logic_vector(31 downto 0); -- Entrada 1
-        op : in  std_logic; -- Sinal de seleção
-        output : out std_logic_vector(31 downto 0) -- Saída
-    );
-	 end component;
-	 
-	-- MUX de 5 bits para escolher entre RD e RT
-	 component mux2_to_1_5bits
-	 Port (
-        input0 : in  std_logic_vector(4 downto 0); -- Entrada 0
-        input1 : in  std_logic_vector(4 downto 0); -- Entrada 1
-        op : in  std_logic; -- Sinal de seleção
-        output : out std_logic_vector(4 downto 0) -- Saída
-    );
-	 end component;
-	 
-	 component shift_left_2
-	 Port (
-        input : in  std_logic_vector(31 downto 0); -- Entrada de 32 bits
-        output : out std_logic_vector(31 downto 0) -- Saída de 32 bits
-    );
-	 
-	 end component;
-	 
-	 
-	 
-	 component  shift_left_jump
-    Port (
-			 input_26bits : in STD_LOGIC_VECTOR (25 downto 0);
-          output_28bits : out STD_LOGIC_VECTOR (27 downto 0));
 
-	 end component;
-	 
-	 component alu_control
-	 port (
-        funct: in std_logic_vector(5 downto 0);
-        alu_op: in std_logic_vector(1 downto 0);
-        operation_code: out std_logic_vector(3 downto 0)
-    );
-	 end component;
 	
 begin
 	opcode <= instruction(31 downto 26);
