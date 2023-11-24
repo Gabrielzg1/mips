@@ -52,6 +52,7 @@ architecture beh of mips is
 	
 	component instruction_memory
 	Port (
+		  clk : in STD_LOGIC;
         address : in std_logic_vector(31 downto 0); -- Endereço de 32 bits
         instruction : out std_logic_vector(31 downto 0) -- Instrução de 32 bits
     );
@@ -61,12 +62,49 @@ architecture beh of mips is
 	 	
 	-- Ula para somar 4 em pc, entra o valor atual e sai somado 
 	component pc_increment_ula
-	 Port (
+	Port (
         pc_input : in std_logic_vector(31 downto 0);
         pc_output : out std_logic_vector(31 downto 0)
+   );
+	end component;
+	 
+	component alu_control 
+	port (
+			funct: in std_logic_vector(5 downto 0);
+         alu_op: in std_logic_vector(1 downto 0);
+         operation_code: out std_logic_vector(3 downto 0)
     );
-	 end component;
-
+	end component;
+	
+	component mux2_to_1_5bits 
+    Port (
+        input0 : in  std_logic_vector(4 downto 0); -- Entrada 0
+        input1 : in  std_logic_vector(4 downto 0); -- Entrada 1
+        op : in  std_logic; -- Sinal de seleção
+        output : out std_logic_vector(4 downto 0) -- Saída
+    );
+	end component mux2_to_1_5bits;
+	
+	component sign_extender
+	Port (
+        input_16bit  : in  std_logic_vector(15 downto 0); -- Entrada de 16 bits
+        output_32bit : out std_logic_vector(31 downto 0)  -- Saída de 32 bits
+    );
+	end component sign_extender;
+	
+	
+	component registers
+	Port (
+        clk : in std_logic;
+        reg_write : in std_logic; -- Sinal para controlar a escrita no registrador
+        read_reg1 : in std_logic_vector(4 downto 0); -- Número do primeiro registrador para leitura
+        read_reg2 : in std_logic_vector(4 downto 0); -- Número do segundo registrador para leitura
+        write_reg : in std_logic_vector(4 downto 0); -- Número do registrador para escrita
+        write_data : in std_logic_vector(31 downto 0); -- Dados a serem escritos
+        read_data1 : out std_logic_vector(31 downto 0); -- Dados do primeiro registrador lido
+        read_data2 : out std_logic_vector(31 downto 0) -- Dados do segundo registrador lido
+    );
+	end component registers;
 	
 begin
 	opcode <= instruction(31 downto 26);
@@ -81,18 +119,17 @@ begin
 	
 	-- MAPEANDO AS PORTAS
 	
-	
-	
+	next_address <= "00000000000000000000000000000100";
 	PC1 : PC port map (
 		clk => clk,
-		pc_in => "00000000000000000000000000000100",
+		pc_in => next_address,
 		pc_out => instruction_address
 	
 	
 	);
 
-	
 	 Instruc_Mem : instruction_memory port map (
+		clk => clk,
 	 	address => instruction_address,
 		instruction => instruction
 	);
@@ -110,6 +147,46 @@ begin
 		reg_write => reg_write,
 		alu_op => alu_op 
 	);
+	
+	write_data <= "00000000000000000000000011111100";
+	
+	
+	Control_alu : alu_control port map (
+        funct => funct,
+        alu_op => alu_op,
+        operation_code => alu_control_fuct
+	);
+	
+	-- PC_ADDER: pc_increment_ula port map (
+		--pc_input => instruction_address,
+      -- pc_output => next_address	
+	-- );
+	
+	mux_out_memory : mux2_to_1_5bits port map (
+		  input0 => rt, -- Entrada 0
+        input1 => rd, -- Entrada 1
+        op => reg_dest,
+        output => write_reg -- Saída
+	);
+	
+	sign_extend : sign_extender port map (
+		input_16bit => immediate, -- Entrada de 16 bits
+      output_32bit => extended_immediate -- Saída de 32 bits
+	
+	);
+	
+	Regs : registers port map (
+        clk => clk,
+        reg_write => reg_write, -- SINAL SE ESCREVE OU NAO NO REG
+        read_reg1 => rs, 
+        read_reg2 => rt, 
+        write_reg => write_reg, -- Número do registrador para escrita
+        write_data => write_data, -- Dados a serem escritos
+        read_data1 => read_data_1, -- Dados do primeiro registrador lido
+        read_data2 => read_data_2 -- Dados do segundo registrador lido
+    );
+	
+	
 	
 
 
