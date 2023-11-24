@@ -13,7 +13,7 @@ end mips;
 architecture beh of mips is
 
 --	-- Sinais /  Valores Dos 'fios' 
-	signal instr_address: std_logic_vector(31 downto 0) := "00000000000000000000000000000000";-- Endereço da instrução
+	signal instruction_address: std_logic_vector(31 downto 0);-- Endereço da instrução
 	signal next_address: std_logic_vector(31 downto 0); -- Proximo endereço de PC
 	signal instruction: std_logic_vector(31 downto 0); -- Instrução atual
 	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, incremented_address, address_adder_result, mux4_result, concatenated_pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
@@ -32,7 +32,7 @@ architecture beh of mips is
 	
 	-- Instanciando todos os componentens
 	component PC
-		 Port (
+		  Port (
         clk : in STD_LOGIC;
         pc_in : in STD_LOGIC_VECTOR (31 downto 0); -- Endereço de entrada
         pc_out : out STD_LOGIC_VECTOR (31 downto 0) -- Endereço atual (saída)
@@ -80,16 +80,26 @@ begin
 	
 	
 	-- MAPEANDO AS PORTAS
+	
+	
+	
+	PC1 : PC port map (
+		clk => clk,
+		pc_in => "00000000000000000000000000000100",
+		pc_out => instruction_address
+	
+	
+	);
 
 	
 	 Instruc_Mem : instruction_memory port map (
-	 	address => instr_address,
+	 	address => instruction_address,
 		instruction => instruction
 	);
 	
 	
 	CONTROL1: control port map (
-		opcode => opcode,
+		opcode => opcode, -- ENTRA O OPCODE DA INSTRUCAO E GERA OS SINAIS ABAIXO
 		reg_dest => reg_dest, 
 		jump => jump,
 		branch => branch, 
