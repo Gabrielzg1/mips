@@ -11,7 +11,7 @@ entity PC is
 end PC;
 
 architecture Behavioral of PC is
-    signal pc_value : STD_LOGIC_VECTOR (31 downto 0) := (others => '0'); -- Inicializa o PC com 0
+    signal pc_value : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000"; -- Inicializa o PC com 0
 begin
     process(clk)
     begin
