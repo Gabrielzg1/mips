@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.numeric_std.all; -- Adicionado para operações numéricas
+use IEEE.numeric_std.all;
+ -- Adicionado para operações numéricas
 
 entity mips is
     port(
@@ -12,7 +13,7 @@ end mips;
 architecture beh of mips is
 
 --	-- Sinais /  Valores Dos 'fios' 
-	signal instr_address: std_logic_vector(31 downto 0); -- Endereço da instrução
+	signal instr_address: std_logic_vector(31 downto 0) := "00000000000000000000000000000000";-- Endereço da instrução
 	signal next_address: std_logic_vector(31 downto 0); -- Proximo endereço de PC
 	signal instruction: std_logic_vector(31 downto 0); -- Instrução atual
 	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, incremented_address, address_adder_result, mux4_result, concatenated_pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
@@ -38,6 +39,14 @@ architecture beh of mips is
     );
     
 	end component;
+	component control
+    port (
+        opcode: in std_logic_vector(5 downto 0);
+        reg_dest, jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write: out std_logic;
+        alu_op: out std_logic_vector(1 downto 0)
+    );
+end component;
+
 	
 	component instruction_memory
 	Port (
@@ -77,13 +86,7 @@ architecture beh of mips is
     );
 	 end component;
 	 
-	 component control
-	  port (
-        opcode: in std_logic_vector(5 downto 0);
-        reg_dest, jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write: out std_logic;
-        alu_op: out std_logic_vector(1 downto 0)
-    );
-	 end component;
+	 
 	 -- 3 Ulas diferentes --> cada uma tem uma funcao 
 	 
 	 -- Ula para as operacoes em geral (principal)
@@ -170,19 +173,15 @@ begin
 	
 	
 	-- MAPEANDO AS PORTAS
-	Program_Counter: PC port map ( 
-		clk => clk,
-		pc_in => next_address,
-		pc_out => instr_address
-		
-	);
+
 	
-	Instruc_Mem : instruction_memory port map (
-		address => instr_address,
+	 Instruc_Mem : instruction_memory port map (
+	 	address => instr_address,
 		instruction => instruction
 	);
 	
-		controller: control port map (
+	
+	CONTROL1: control port map (
 		opcode => opcode,
 		reg_dest => reg_dest, 
 		jump => jump,
@@ -193,115 +192,10 @@ begin
 		alu_src => alu_src,
 		reg_write => reg_write,
 		alu_op => alu_op 
-	
-	);
-	
-		-- seleciona o registrador que será escrito
-	mux_entrada_reg: mux2_to_1_5bits port map (
-		input0 => rt, 
-		input1 => rd, 
-		op => reg_dest,
-		output => write_reg
-	);
-	
-	reg: registers port map (
-		clk => clk,
-		reg_write => reg_write, -- SINAL SE HÁ OU NAO ESCRITA NO REGISTRADOR (EX: LW E TIPO R )
-      read_reg1 => rs, --> VEM DA INSTRUCAO 
-      read_reg2 => rt, --> //
-      write_reg => write_reg, -- QUAL REGISTRADOR ESCREVER, OU RT OU RD --> SAIDA do MUX
-      write_data => write_data, -- DADO A ESCREVER
-      read_data1 => read_data_1, -- OUT
-      read_data2 => read_data_2 -- OUT
-	
-	);
-	
-	pc_adder: pc_increment_ula port map (
-		  clk => clk,
-		  pc_input => instr_address,
-        pc_output => incremented_address
-		
-	);
-		-- SELECIONA A OPERECAO DA ULA
-	ULA_control : alu_control port map (
-		funct => funct,
-		alu_op => alu_op,
-		operation_code => alu_control_fuct
-	);
-	
-	
-	sign_extend: sign_extender port map (
-		input_16bit  => immediate, -- Entrada de 16 bits
-		output_32bit => extended_immediate -- Saída de 32 bits
-	
-	);
-	
-	mux_saida_reg: mux2_to_1 port map (
-		input0 => read_data_2, -- caso 0
-      input1 => extended_immediate, -- caso 1
-      op => alu_src,
-      output => alu_in_2
-		  
 	);
 	
 
-	
-	-- ULA PRINCIPAL 
-	arith_ula: arithmetic_ula port map (
-		input_a => read_data_1, 
-		input_b => alu_in_2, -- SAIDA DO MUX 
-		operation_code => alu_control_fuct,
-		flag_zero => alu_zero,
-		result => alu_result
-	);
-	
-	
-	-- and para ver se o brancgh "pula ou nao"
-	branch_and_alu_zero <= branch and alu_zero;
-	
 
-	
-	address_adder: address_calc_ula port map (
-		input1 => incremented_address,
-      input2 => shifted_immediate,
-      result => address_adder_result
-	
-	);
-	
-	
-	jump_shift:  shift_left_jump port map (
-        input_26bits => jump_address, -- Entrada original de 26 bits
-        output_28bits => shifted_jump_address
-	);
-	
-	concatenated_pc_and_jump_address <= incremented_address(31 downto 28) & shifted_jump_address; 
-	
-	mux_saida_address_adder: mux2_to_1 port map (
-		input0 => incremented_address, -- caso 0
-      input1 => address_adder_result, -- caso 1
-      op => branch_and_alu_zero,
-      output => mux4_result
-		  
-	);
-	
-	mux_jump_or_branch :  mux2_to_1 port map (
-		input0 => concatenated_pc_and_jump_address, -- caso 0
-      input1 => mux4_result, -- caso 1
-      op => jump,
-      output => next_address
-		  
-	);
-	
-
-	DM : data_memory port map (
-		clk => clk,
-		address => alu_result,
-		write_data => read_data_2,
-		mem_read => mem_read,
-		mem_write => mem_write,
-		data_out => mem_read_data
-	);
-	
     process(clk)
     begin
         if rising_edge(clk) then

@@ -33,7 +33,8 @@ architecture behavior of arithmetic_ula is
 
 	begin
 
-	result <=	input_a + input_b when(operation_code=add_op) else
+	result <=
+				input_a + input_b when(operation_code=add_op) else
 				input_a - input_b when(operation_code=sub_op or operation_code=sub_neq) else
 				input_a and input_b when(operation_code=and_operation) else
 				input_a or input_b when(operation_code=or_operation) else

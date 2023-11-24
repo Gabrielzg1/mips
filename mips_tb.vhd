@@ -18,6 +18,9 @@ architecture behavior of mips_tb is
     signal clk: std_logic := '0';
     signal example_counter: integer;
 
+    -- Contador para controlar o número de ciclos de clock
+    signal clk_counter: integer := 0;
+
     -- Instância do componente MIPS
     begin
         uut: mips port map (clk => clk, example_counter => example_counter);
@@ -25,9 +28,13 @@ architecture behavior of mips_tb is
         -- Processo para gerar o clock
         clk_process: process
         begin
-            clk <= '0';
-            wait for 10 ns; -- Ajuste o período do clock conforme necessário
-            clk <= '1';
-            wait for 10 ns;
+            while clk_counter < 1 loop
+                clk <= '0';
+                wait for 100 ns; -- Ajuste o período do clock conforme necessário
+                clk <= '1';
+                wait for 100 ns;
+                clk_counter <= clk_counter + 1; -- Incrementa o contador a cada ciclo de clock
+            end loop;
+            wait; -- Encerra o processo após 32 ciclos de clock
         end process;
 end behavior;
