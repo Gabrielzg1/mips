@@ -177,19 +177,12 @@ begin
 		
 	);
 	
-	pc_adder: pc_increment_ula port map (
-		  clk => clk,
-		  pc_input => instr_address,
-        pc_output => incremented_address
-		
-	);
-	
 	Instruc_Mem : instruction_memory port map (
 		address => instr_address,
 		instruction => instruction
 	);
 	
-	controller: control port map (
+		controller: control port map (
 		opcode => opcode,
 		reg_dest => reg_dest, 
 		jump => jump,
@@ -203,7 +196,7 @@ begin
 	
 	);
 	
-	-- seleciona o registrador que será escrito
+		-- seleciona o registrador que será escrito
 	mux_entrada_reg: mux2_to_1_5bits port map (
 		input0 => rt, 
 		input1 => rd, 
@@ -223,6 +216,20 @@ begin
 	
 	);
 	
+	pc_adder: pc_increment_ula port map (
+		  clk => clk,
+		  pc_input => instr_address,
+        pc_output => incremented_address
+		
+	);
+		-- SELECIONA A OPERECAO DA ULA
+	ULA_control : alu_control port map (
+		funct => funct,
+		alu_op => alu_op,
+		operation_code => alu_control_fuct
+	);
+	
+	
 	sign_extend: sign_extender port map (
 		input_16bit  => immediate, -- Entrada de 16 bits
 		output_32bit => extended_immediate -- Saída de 32 bits
@@ -237,12 +244,7 @@ begin
 		  
 	);
 	
-	-- SELECIONA A OPERECAO DA ULA
-	ULA_control : alu_control port map (
-		funct => funct,
-		alu_op => alu_op,
-		operation_code => alu_control_fuct
-	);
+
 	
 	-- ULA PRINCIPAL 
 	arith_ula: arithmetic_ula port map (
