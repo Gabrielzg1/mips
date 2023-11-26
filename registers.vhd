@@ -19,16 +19,17 @@ architecture Behavioral of registers is
     type reg_array is array (0 to 31) of std_logic_vector(31 downto 0);
     signal registers: reg_array := (others => (others => '0')); -- Inicializa os registradores com 0
 begin
+-- Lê os registradores
+            read_data1 <= registers(to_integer(unsigned(read_reg1)));
+            read_data2 <= registers(to_integer(unsigned(read_reg2)));
     process(clk)
     begin
-        if rising_edge(clk) then
+        if falling_edge(clk) then
             if reg_write = '1' then
                 -- Escreve no registrador
                 registers(to_integer(unsigned(write_reg))) <= write_data;
             end if;
-            -- Lê os registradores
-            read_data1 <= registers(to_integer(unsigned(read_reg1)));
-            read_data2 <= registers(to_integer(unsigned(read_reg2)));
+            
         end if;
     end process;
 end Behavioral;

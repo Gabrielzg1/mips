@@ -1,17 +1,3 @@
-------------------------------------------------------
--- Control Component
---
--- - reg_dest: use rd as the destination register
--- - jump: jump to the address
--- - branch: 
--- - mem_read: read from data memory
--- - mem_to_reg: write a value from data memory to a register
--- - mem_write: write to data memory
--- - alu_src: use the immediate as the second parameter of the ALU
--- - reg_write: write to a register
--- - alu_op: command to use in the alu control
-------------------------------------------------------
-
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
