@@ -14,21 +14,22 @@ entity data_memory is
     );
 end data_memory;
 
-
 -- Arquitetura da memória de dados
 architecture Behavioral of data_memory is
     type memory_array is array (0 to 255) of std_logic_vector(31 downto 0);
     signal memory : memory_array := (others => (others => '0'));
 begin
-     process(clk)
+    process(clk)
     begin
-        if rising_edge(clk) then
+        if falling_edge(clk) then
+            if mem_write = '1' then
+                memory(to_integer(unsigned(address))) <= write_data;
+            end if;
+
             if mem_read = '1' then
                 data_out <= memory(to_integer(unsigned(address)));
-            elsif mem_write = '1' then
-                memory(to_integer(unsigned(address))) <= write_data;
             else
-                data_out <= (others => '0');
+                data_out <= (others => '0'); -- Optional: Reset data_out if not reading
             end if;
         end if;
     end process;
