@@ -28,7 +28,7 @@ architecture behavior of mips_tb is
         -- Processo para gerar o clock
         clk_process: process
         begin
-            while clk_counter < 31 loop
+            while clk_counter < 10 loop
                clk <= '0';
                 wait for 100 ns; -- Ajuste o período do clock conforme necessário
                clk <= '1';

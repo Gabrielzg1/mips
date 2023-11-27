@@ -16,7 +16,7 @@ architecture beh of mips is
 	signal instruction_address: std_logic_vector(31 downto 0);-- Endereço da instrução
 	signal next_address: std_logic_vector(31 downto 0); -- Proximo endereço de PC
 	signal instruction: std_logic_vector(31 downto 0); -- Instrução atual
-	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_out, incremented_address, address_adder_result, mux4_result, concatenated_pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
+	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_out, incremented_address, address_adder_result, mux_inc_pc_or_branch_result, pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
 	signal shifted_jump_address: std_logic_vector(27 downto 0);
 	signal jump_address: std_logic_vector(25 downto 0);
 	signal immediate: std_logic_vector(15 downto 0);
@@ -26,7 +26,7 @@ architecture beh of mips is
 	signal alu_op: std_logic_vector(1 downto 0);
 	
 	-- saidas do CONTROL + sinal do branch	
-	signal reg_dest, jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero, branch_and_alu_zero: std_logic:= '0';
+	signal reg_dest, jump, branch, mem_read, mem_to_reg, mem_write, alu_src, reg_write, alu_zero, op_branch: std_logic:= '0';
 	
 	
 	
@@ -133,8 +133,32 @@ architecture beh of mips is
             mem_write  : in  std_logic;
             data_out   : out std_logic_vector(31 downto 0)
         );
-   end component;
+   end component data_memory;
 	
+	
+	
+	component shift_left_jump 
+    Port ( input_26bits : in STD_LOGIC_VECTOR (25 downto 0);
+           output_28bits : out STD_LOGIC_VECTOR (27 downto 0)
+			  );
+	end  component shift_left_jump;
+	
+	
+	component shift_left_2 
+    Port (
+        input : in  std_logic_vector(31 downto 0); -- Entrada de 32 bits
+        output : out std_logic_vector(31 downto 0) -- Saída de 32 bits
+    );
+	end component shift_left_2;
+	
+	
+	component address_calc_ula 
+    Port (
+        input1 : in std_logic_vector(31 downto 0);
+        input2 : in std_logic_vector(31 downto 0);
+        result : out std_logic_vector(31 downto 0)
+    );
+	end component address_calc_ula;
 	
 	
 begin
@@ -244,7 +268,7 @@ begin
 	
 	PC_ADDER : pc_increment_ula port map (
 		  pc_input => instruction_address,
-        pc_output => next_address
+        pc_output => incremented_address
 	
 	);
 	
@@ -256,6 +280,46 @@ begin
        mem_write  => mem_write,
 		 data_out   => mem_read_data
         
+	);
+	
+	
+	shift_jump : shift_left_jump port map ( 
+			  input_26bits => jump_address,
+           output_28bits => shifted_jump_address
+	);
+	
+	
+	-- (pc + 4)[31-28] & jump address [27-0]  ==> endereco de jump de 32 bits
+	pc_and_jump_address <= incremented_address(31 downto 28) & shifted_jump_address; 
+	
+	shift_left_branch : shift_left_2 port map (
+		  input => extended_immediate,
+        output => shifted_immediate
+		  
+	);
+	
+	
+	address_adder : address_calc_ula port map (
+	
+        input1 => incremented_address,
+        input2 => shifted_immediate,
+        result => address_adder_result
+	);
+	
+	op_branch <= branch and alu_zero;
+	
+	mux_inc_pc_or_branch : mux2_to_1 port map (
+		  input0 => incremented_address, -- Entrada 0
+        input1 => address_adder_result, -- Entrada 1
+        op => op_branch,
+        output => mux_inc_pc_or_branch_result -- Saída
+	);
+	
+	mux_jump : mux2_to_1 port map (
+		  input0 => mux_inc_pc_or_branch_result, -- Entrada 0
+        input1 => pc_and_jump_address, -- Entrada 1
+        op => jump,
+        output => next_address -- Saída
 	);
    
 

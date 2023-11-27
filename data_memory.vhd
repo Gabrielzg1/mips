@@ -17,7 +17,7 @@ end data_memory;
 
 -- Arquitetura da memória de dados
 architecture Behavioral of data_memory is
-    type memory_array is array (0 to 31) of std_logic_vector(31 downto 0); -- Tamanho corrigido
+    type memory_array is array (0 to 63) of std_logic_vector(31 downto 0); -- Tamanho corrigido
     signal memory : memory_array := (others => (others => '0'));
 begin
     -- Leitura assíncrona
