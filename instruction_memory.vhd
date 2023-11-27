@@ -21,8 +21,9 @@ architecture behavioral of instruction_memory is
 		  "10101100100000110000000000000000",  -- sw $t3, 0($t4)         # Armazena F1 no array 
 		  "00100000100001000000000000000100",  -- addi $t4, $t4, 4       # Incrementa o endereço do array 
         "00100000001000011111111111111110",	-- addi $t1, $t1, -2      # Decrementa o contador em 2 (já que já armazenamos 2 números)
+		  
 		   											   -- fib_loop: 
-		  "00010000001000000000000000010000",  -- beq $t1, $0, end       # Se o contador é zero então termina	 -- TROCAR O ENDERECO DE FIM 
+		  "00010000001000000000000000010000",  -- beq $t1, $0, end       # Se o contador é zero então termina	 
 		  "00000000010000110010100000100000",  -- add $t5, $t2, $t3      # Calcula o próximo número de Fibonacci (F(n) = F(n-1) + F(n-2))
 		  "10101100100001010000000000000000",  -- sw $t5, 0($t4)         # Armazena o novo número de Fibonacci no array
 		  "00000000011000000001000000100000",  -- add $t2, $t3, $zero    # Move F(n-1) para F(n-2) para a próxima iteração
