@@ -5,7 +5,7 @@
       $t4, ja contem o valor 0   ## carregar no inicio, ja que nao só vai ter essa instrcao 
 
 		  sw $t2, 0($t4)         # Armazena F0 no início do array
-        addi $t4, $t4, 4      # Incrementa o endereço do array  #### rever o endereco ( somar 4 ou 1  ) 
+        addi $t4, $t4, 4      # Incrementa o endereço do array  #### rever o endereco ( somar 4 )  
         sw $t3, 0($t4)         # Armazena F1 no array
         addi $t4, $t4, 4       # Incrementa o endereço do array
         addi $t1, $t1, -2      # Decrementa o contador em 2 (já que já armazenamos 2 números)
