@@ -15,7 +15,7 @@ architecture Behavioral of PC is
 begin
     process(clk)
     begin
-        if rising_edge(clk) then
+        if falling_edge(clk) then
             pc_value <= pc_in; -- Atualiza o PC a cada ciclo de clock com o valor de entrada
         end if;
     end process;

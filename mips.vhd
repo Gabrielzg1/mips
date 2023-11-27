@@ -5,8 +5,8 @@ use IEEE.numeric_std.all;
 
 entity mips is
     port(
-        clk: in std_logic;
-        example_counter: buffer integer := 0
+        clk: in std_logic
+     
     );
 end mips;
 
@@ -16,7 +16,7 @@ architecture beh of mips is
 	signal instruction_address: std_logic_vector(31 downto 0);-- Endereço da instrução
 	signal next_address: std_logic_vector(31 downto 0); -- Proximo endereço de PC
 	signal instruction: std_logic_vector(31 downto 0); -- Instrução atual
-	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_result, incremented_address, address_adder_result, mux4_result, concatenated_pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
+	signal read_data_1, read_data_2, write_data, extended_immediate, shifted_immediate, alu_in_2, alu_out, incremented_address, address_adder_result, mux4_result, concatenated_pc_and_jump_address, mem_read_data: std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
 	signal shifted_jump_address: std_logic_vector(27 downto 0);
 	signal jump_address: std_logic_vector(25 downto 0);
 	signal immediate: std_logic_vector(15 downto 0);
@@ -52,22 +52,12 @@ architecture beh of mips is
 	
 	component instruction_memory
 	Port (
-		  clk : in STD_LOGIC;
+		--  clk: in STD_LOGIC; -- Adicionando o sinal de clock
         address : in std_logic_vector(31 downto 0); -- Endereço de 32 bits
         instruction : out std_logic_vector(31 downto 0) -- Instrução de 32 bits
     );
 	 end component;
-	
-
-	 	
-	-- Ula para somar 4 em pc, entra o valor atual e sai somado 
-	component pc_increment_ula
-	Port (
-        pc_input : in std_logic_vector(31 downto 0);
-        pc_output : out std_logic_vector(31 downto 0)
-   );
-	end component;
-	 
+		 
 	component alu_control 
 	port (
 			funct: in std_logic_vector(5 downto 0);
@@ -84,6 +74,16 @@ architecture beh of mips is
         output : out std_logic_vector(4 downto 0) -- Saída
     );
 	end component mux2_to_1_5bits;
+	
+	component mux2_to_1 
+    Port (
+        input0 : in  std_logic_vector(31 downto 0); 
+        input1 : in  std_logic_vector(31 downto 0); 
+        op : in  std_logic; 
+        output : out std_logic_vector(31 downto 0) 
+    );
+	end component mux2_to_1;
+	
 	
 	component sign_extender
 	Port (
@@ -106,6 +106,37 @@ architecture beh of mips is
     );
 	end component registers;
 	
+	
+	component arithmetic_ula
+	port(
+		input_a, input_b: std_logic_vector(31 downto 0);
+		operation_code: in std_logic_vector(3 downto 0);
+		flag_zero: out std_logic;
+		result: out std_logic_vector(31 downto 0)
+	
+	);
+	end component arithmetic_ula;
+	
+	component pc_increment_ula
+	Port (
+        pc_input : in std_logic_vector(31 downto 0);
+        pc_output : out std_logic_vector(31 downto 0)
+    );
+	end component pc_increment_ula;
+	
+	component data_memory
+        Port (
+            clk        : in  std_logic;
+            address    : in  std_logic_vector(31 downto 0);
+            write_data : in  std_logic_vector(31 downto 0);
+            mem_read   : in  std_logic;
+            mem_write  : in  std_logic;
+            data_out   : out std_logic_vector(31 downto 0)
+        );
+   end component;
+	
+	
+	
 begin
 	opcode <= instruction(31 downto 26);
 	rs <= instruction(25 downto 21);
@@ -119,7 +150,7 @@ begin
 	
 	-- MAPEANDO AS PORTAS
 	
-	next_address <= "00000000000000000000000000000100";
+	
 	PC1 : PC port map (
 		clk => clk,
 		pc_in => next_address,
@@ -128,8 +159,9 @@ begin
 	
 	);
 
+
 	 Instruc_Mem : instruction_memory port map (
-		clk => clk,
+	--	clk => clk, 
 	 	address => instruction_address,
 		instruction => instruction
 	);
@@ -148,7 +180,24 @@ begin
 		alu_op => alu_op 
 	);
 	
-	write_data <= "00000000000000000000000011111100";
+	mux_out_memory : mux2_to_1_5bits port map (
+		  input0 => rt, -- Entrada 0
+        input1 => rd, -- Entrada 1
+        op => reg_dest,
+        output => write_reg -- Saída
+	);
+	
+	Regs : registers port map (
+        clk => clk,
+        reg_write => reg_write,
+        read_reg1 => rs, 
+        read_reg2 => rt, 
+        write_reg => write_reg, 
+        write_data => write_data, -- Dados a serem escritos!!!! trocar quando tester
+        read_data1 => read_data_1, 
+        read_data2 => read_data_2 
+    );
+	
 	
 	
 	Control_alu : alu_control port map (
@@ -157,43 +206,60 @@ begin
         operation_code => alu_control_fuct
 	);
 	
-	-- PC_ADDER: pc_increment_ula port map (
-		--pc_input => instruction_address,
-      -- pc_output => next_address	
-	-- );
 	
-	mux_out_memory : mux2_to_1_5bits port map (
-		  input0 => rt, -- Entrada 0
-        input1 => rd, -- Entrada 1
-        op => reg_dest,
-        output => write_reg -- Saída
-	);
 	
+
 	sign_extend : sign_extender port map (
 		input_16bit => immediate, -- Entrada de 16 bits
       output_32bit => extended_immediate -- Saída de 32 bits
 	
 	);
 	
-	Regs : registers port map (
-        clk => clk,
-        reg_write => reg_write, -- SINAL SE ESCREVE OU NAO NO REG
-        read_reg1 => rs, 
-        read_reg2 => rt, 
-        write_reg => write_reg, -- Número do registrador para escrita
-        write_data => write_data, -- Dados a serem escritos
-        read_data1 => read_data_1, -- Dados do primeiro registrador lido
-        read_data2 => read_data_2 -- Dados do segundo registrador lido
-    );
+
+	 
+	mux_out_regs : mux2_to_1 port map (
+		  input0 => read_data_2, -- Entrada 0
+        input1 => extended_immediate, -- Entrada 1
+        op => alu_src,
+        output => alu_in_2 -- Saída
+	);
 	
+	ULA : arithmetic_ula port map (
+		input_a => read_data_1, 
+		input_b => alu_in_2,
+		operation_code => alu_control_fuct,
+		flag_zero => alu_zero,
+		result => alu_out
+		
+	);
+	
+	mux_memory_or_alu_out : mux2_to_1 port map (
+		  input0 => alu_out, -- Entrada 0
+        input1 => mem_read_data, -- Entrada 1
+        op => mem_to_reg,
+        output => write_data -- Saída
+	);
+	
+	
+	
+	PC_ADDER : pc_increment_ula port map (
+		  pc_input => instruction_address,
+        pc_output => next_address
+	
+	);
+	
+	memory: data_memory port map (
+       clk => clk,
+       address   => alu_out,
+		 write_data => read_data_2,
+       mem_read   => mem_read,
+       mem_write  => mem_write,
+		 data_out   => mem_read_data
+        
+	);
+   
+
 	
 	
 
-
-    process(clk)
-    begin
-        if rising_edge(clk) then
-            example_counter <= example_counter + 1;
-        end if;
-    end process;
 end beh;

@@ -45,7 +45,7 @@ begin
 
         -- Teste para subtração
         input_a <= "00000000000000000000000000000001"; -- 1
-        input_b <= "00000000000000000000000000000111"; -- 1
+        input_b <= "00000000000000000000000000000111"; -- 7
         operation_code <= "0011"; -- Código para subtração
         wait for 10 ns;
 

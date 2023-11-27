@@ -10,31 +10,34 @@ architecture behavior of mips_tb is
     -- Componente a ser testado
     component mips
         port(
-            clk: in std_logic;
-            example_counter: out integer
+            clk: in std_logic
+            
         );
     end component;
 
     signal clk: std_logic := '0';
-    signal example_counter: integer;
+
 
     -- Contador para controlar o número de ciclos de clock
     signal clk_counter: integer := 0;
 
     -- Instância do componente MIPS
     begin
-        uut: mips port map (clk => clk, example_counter => example_counter);
+        uut: mips port map (clk => clk);
 
         -- Processo para gerar o clock
         clk_process: process
         begin
-            while clk_counter < 1 loop
-                clk <= '0';
+            while clk_counter < 31 loop
+               clk <= '0';
                 wait for 100 ns; -- Ajuste o período do clock conforme necessário
-                clk <= '1';
+               clk <= '1';
                 wait for 100 ns;
                 clk_counter <= clk_counter + 1; -- Incrementa o contador a cada ciclo de clock
             end loop;
-            wait; -- Encerra o processo após 32 ciclos de clock
+          wait; -- Encerra o processo após 32 ciclos de clock
         end process;
+					
+		
+		
 end behavior;
