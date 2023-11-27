@@ -251,10 +251,10 @@ begin
 	memory: data_memory port map (
        clk => clk,
        address   => alu_out,
-		 write_data => write_data,
+		 write_data => read_data_2,
        mem_read   => mem_read,
        mem_write  => mem_write,
-			data_out   => mem_read_data
+		 data_out   => mem_read_data
         
 	);
    

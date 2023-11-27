@@ -16,7 +16,7 @@ architecture behavioral of instruction_memory is
     type mem_array is array(0 to 31) of STD_LOGIC_VECTOR (31 downto 0);
     signal data_mem: mem_array := ( 
         "00100000000000100000000000000010", -- Instrução 0 --  r2 = 0 + 2
-		  "00100000010000010000000000000001", -- Instrução 1		r1 = r2 + 1  ==> r2 == 3
+		  "10101100000000100000000000000000", -- sw r2, 0(r0)
         -- ... mais instruções ...
         others => "00000000000000000000000000000000" 
     );
