@@ -1,0 +1,28 @@
+		addi $t1, $0, 16    # Armazena 16 em $t0 para contar 16 números de Fibonacci
+		addi $t2, $0, 0     # Primeiro número de Fibonacci (F0 = 0)
+		addi $t3, $0, 1     # Segundo número de Fibonacci (F1 = 1)
+
+      $t4, ja contem o valor 0   ## carregar no inicio, ja que nao só vai ter essa instrcao 
+
+		  sw $t2, 0($t4)         # Armazena F0 no início do array
+        addi $t4, $t4, 4      # Incrementa o endereço do array  #### rever o endereco ( somar 4 ou 1  ) 
+        sw $t3, 0($t4)         # Armazena F1 no array
+        addi $t4, $t4, 4       # Incrementa o endereço do array
+        addi $t1, $t1, -2      # Decrementa o contador em 2 (já que já armazenamos 2 números)
+
+    fib_loop:
+        beq $t1, $0, end    # Se o contador é zero, todos os 16 números foram armazenados, então termina
+
+        add $t5, $t2, $t3      # Calcula o próximo número de Fibonacci (F(n) = F(n-1) + F(n-2))
+        sw $t5, 0($t4)         # Armazena o novo número de Fibonacci no array
+
+        add $t2, $t3, $zero  # Move F(n-1) para F(n-2) para a próxima iteração
+		  add $t3, $t5, $zero  # Move F(n) para F(n-1) para a próxima iteração
+
+        addi $t4, $t4, 4       # Incrementa o endereço do array
+        addi $t1, $t1, -1      # Decrementa o contador
+
+        j fib_loop             # Volta ao início do loop
+
+    end:
+       .....
