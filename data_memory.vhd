@@ -21,14 +21,14 @@ architecture Behavioral of data_memory is
     signal memory : memory_array := (others => (others => '0'));
 begin
     -- Leitura assíncrona
-    data_out <= memory(conv_integer(address(6 downto 2))) when mem_read = '1' else (others => '0');
+    data_out <= memory(conv_integer(address(4 downto 0))) when mem_read = '1' else (others => '0');
 	 
     -- Processo sensível ao clock para escrita
     process(clk)
     begin
         if falling_edge(clk) then
             if mem_write = '1' then
-                memory(conv_integer(address(6 downto 2))) <= write_data;
+                memory(conv_integer(address(4 downto 0))) <= write_data;
             end if;
         end if;
     end process;
